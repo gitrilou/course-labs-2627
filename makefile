@@ -91,8 +91,17 @@ vscode-build-container:
 	    --build-arg USER_GID=$(HOST_GID)
 
 vscode-up:
+	@repo_owner="$$(docker run --rm --platform linux/amd64 \
+	    -v "$(CURDIR):/repo:ro" \
+	    $(VSCODE_TAG):latest stat -c '%u:%g' /repo)"; \
+	test -n "$$repo_owner" || { \
+	    echo "Cannot determine the container-visible owner of $(CURDIR)" >&2; \
+	    exit 2; \
+	}; \
 	docker run -d --name $(VSCODE_LKP) --platform linux/amd64 \
 	    --privileged $(CONTAINER_RUN_FLAGS) \
+	    --user "$$repo_owner" \
+	    -e HOME=/home/vscode \
 	    -e PASSWORD="$(VSCODE_PASSWORD)" \
 	    -p 127.0.0.1:$(VSCODE_PORT):8080 \
 	    -v "$(CURDIR):/repo" \

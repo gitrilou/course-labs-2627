@@ -88,6 +88,16 @@ workspace is `/repo`: edit files in the Explorer, use **Terminal → Run Build
 Task** to rebuild modules and the initramfs, and use **Terminal → Run Task** to
 boot QEMU with one or four vCPUs. These tasks execute inside the same container,
 so no host compiler or editor integration is required after startup.
+
+`vscode-up` probes the numeric owner of `/repo` as seen from the container and
+runs code-server with that UID and GID. This matters on Linux with rootless
+Docker or Podman: the host user commonly appears as `root` inside the user
+namespace, so the integrated terminal may have a `root` prompt. That namespace
+root maps back to the unprivileged host user; it is not host root. With a
+rootful Linux engine or Docker Desktop, the selected identity instead follows
+the owner exposed by that engine's bind mount. Do not replace `vscode-up` with
+an ad-hoc `docker run`, or editing `/repo` may fail with `EACCES`.
+
 The service listens only on the host loopback interface. If port 8080 is busy
 or you want a different local password, override both values when starting it:
 
