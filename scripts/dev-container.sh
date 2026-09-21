@@ -13,7 +13,7 @@ Commands run inside the persistent development container:
   build  rebuild modules and initramfs, then refresh compile databases
   ccdb   refresh kernel and per-module compile_commands.json files
   run    boot QEMU; configure architecture with __BUILD_ARCH and CPUs with SMP
-  debug  boot QEMU paused with the GDB server on TCP port 1234
+  debug  prepare GDB helpers, then boot QEMU paused with its server on port 1234
 EOF
 }
 
@@ -54,6 +54,7 @@ case "${1:-}" in
         ;;
     debug)
         run_as_root "$@"
+        make -C /sources/linux scripts_gdb
         exec /repo/stage/start-qemu.sh --arch "$ARCH" --smp "$SMP" --dbg
         ;;
     -h|--help|help)

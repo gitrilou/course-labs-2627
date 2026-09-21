@@ -81,6 +81,25 @@
       }
     },
     {
+      "label": "AOS: Debug QEMU (1 vCPU)",
+      "type": "shell",
+      "command": "/repo/scripts/dev-container.sh",
+      "args": ["debug"],
+      "options": {
+        "cwd": "/repo",
+        "env": {
+          "__BUILD_ARCH": "amd64",
+          "SMP": "1"
+        }
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "focus": true,
+        "panel": "dedicated"
+      }
+    },
+    {
       "label": "AOS: Debug QEMU (4 vCPUs)",
       "type": "shell",
       "command": "/repo/scripts/dev-container.sh",

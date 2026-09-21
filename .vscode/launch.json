@@ -14,6 +14,7 @@
       "stopAtConnect": false,
       "autorun": [
         "set pagination off",
+        "source /sources/linux/vmlinux-gdb.py",
         "source /repo/scripts/gdb/aos-module-symbols.py",
         "set confirm off",
         "hbreak start_kernel"
