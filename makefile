@@ -80,6 +80,30 @@ dev-run:
 dev-dbg:
 	docker exec -it -e TERM=$$TERM $(LKP) /repo/stage/start-qemu.sh --arch $(T) --smp $(SMP) --dbg
 
+.PHONY: macos-qemu-check macos-qemu-run macos-qemu-debug
+
+macos-qemu-check:
+	@test "$$(uname -s)" = Darwin && test "$$(uname -m)" = arm64 || { \
+	    echo "The accelerated host-QEMU workflow requires Apple Silicon macOS." >&2; \
+	    exit 2; \
+	}
+	@command -v qemu-system-x86_64 >/dev/null || { \
+	    echo "qemu-system-x86_64 not found; install it with: brew install qemu" >&2; \
+	    exit 2; \
+	}
+	@test -s stage/bzImage-amd64 \
+	    && test -s stage/initramfs-busybox-amd64.cpio.gz || { \
+	    echo "Missing AMD64 guest artifacts; run the browser build task first." >&2; \
+	    exit 2; \
+	}
+
+macos-qemu-run: macos-qemu-check
+	./stage/start-qemu.sh --arch amd64 --smp $(SMP)
+
+macos-qemu-debug: macos-qemu-check
+	./stage/start-qemu.sh --arch amd64 --smp $(SMP) --dbg \
+	    --gdb-host 127.0.0.1
+
 
 ## Optional browser-based VS Code workflow. It uses a separate image and
 ## container, leaving the teaching image/tag and dev-* workflow untouched.

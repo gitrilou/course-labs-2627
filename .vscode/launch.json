@@ -19,6 +19,25 @@
         "set confirm off",
         "hbreak start_kernel"
       ]
+    },
+    {
+      "name": "AOS: Attach to host QEMU (macOS experimental)",
+      "type": "gdb",
+      "request": "attach",
+      "executable": "/sources/linux/vmlinux",
+      "target": "host.docker.internal:1234",
+      "remote": true,
+      "cwd": "/sources/linux",
+      "gdbpath": "/usr/bin/gdb",
+      "valuesFormatting": "parseText",
+      "stopAtConnect": false,
+      "autorun": [
+        "set pagination off",
+        "source /sources/linux/vmlinux-gdb.py",
+        "source /repo/scripts/gdb/aos-module-symbols.py",
+        "set confirm off",
+        "hbreak start_kernel"
+      ]
     }
   ]
 }

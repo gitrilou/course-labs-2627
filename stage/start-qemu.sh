@@ -6,6 +6,8 @@ show_help() {
     echo "  --arch <arch>            Specify architecture ('amd64' or 'aarch64')"
     echo "  --smp <n>                Number of processors (default 1)"
     echo "  --with-gui               Open QEMU gui"
+    echo "  --dbg                    Start paused with the GDB server on port 1234"
+    echo "  --gdb-host <address>     Bind the GDB server to this address"
     echo "  --dry                    Dry run"
     echo "  --help                   Display this help and exit"
 }
@@ -16,6 +18,7 @@ QEMUAPP=""
 BUILD_ARCH=""
 DRY=0
 SMP=1
+GDB_HOST=""
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 
@@ -23,10 +26,11 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # doesn't see shifts inside the body, which breaks multi-value flags.
 while [ $# -gt 0 ]; do
   case "$1" in
-    --arch)      ARCH="$2";   shift 2 ;;
-    --smp)       SMP="$2";    shift 2 ;;
+    --arch)      ARCH="$2";      shift 2 ;;
+    --smp)       SMP="$2";       shift 2 ;;
     --with-gui)  GRAPHIC_MODE=1; shift ;;
     --dbg)       DEBUG_MODE=1;   shift ;;
+    --gdb-host)  GDB_HOST="$2";  shift 2 ;;
     --dry)       DRY=1;          shift ;;
     --help)      show_help; exit 0 ;;
     *)           shift ;;
@@ -63,8 +67,12 @@ else
     exit 1
 fi
 
-if [ "$DEBUG_MODE" == "1" ]; then 
-	QEMUMAC+=" -s -S"
+if [ "$DEBUG_MODE" == "1" ]; then
+    if [ -n "$GDB_HOST" ]; then
+        QEMUMAC+=" -gdb tcp:$GDB_HOST:1234 -S"
+    else
+        QEMUMAC+=" -s -S"
+    fi
 fi
 
 CMD="$QEMUCMD $QEMUMAC -kernel $DIR/bzImage-$BUILD_ARCH -initrd $DIR/initramfs-busybox-$BUILD_ARCH.cpio.gz -append \"$QEMUAPP\""
