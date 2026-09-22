@@ -105,47 +105,14 @@ or you want a different local password, override both values when starting it:
 make VSCODE_PORT=8081 VSCODE_PASSWORD='local-password' vscode-up
 ```
 
-### Accelerated Apple Silicon workflow (experimental)
+Apple Silicon users can optionally follow the
+[experimental accelerated macOS workflow](apple-silicon.md), which keeps the
+AMD64 guest but runs QEMU natively on the Mac.
 
-On Apple Silicon, Docker Desktop can use Rosetta to accelerate the AMD64
-code-server, clangd, and build tools. This macOS-specific workflow is
-experimental. It keeps the teaching kernel and guest on AMD64, but runs an
-ARM64 Homebrew QEMU natively on the host because QEMU itself is not compatible
-with Docker's Rosetta path: it exits on the unimplemented x86-64 `signalfd`
-system call.
-
-Enable **Use Rosetta for x86_64/amd64 emulation on Apple Silicon** in Docker
-Desktop and install host QEMU once:
-
-```sh
-brew install qemu
-```
-
-Start code-server normally and build from **Terminal → Run Build Task**. Do not
-use the `AOS: Run QEMU` or `AOS: Debug QEMU` tasks in this mode. In a separate
-macOS terminal at the repository root, boot the generated AMD64 guest:
-
-```sh
-make SMP=1 macos-qemu-run
-```
-
-That host terminal is the guest console. For graphical debugging, start QEMU
-paused instead:
-
-```sh
-make SMP=1 macos-qemu-debug
-```
-
-Then select `AOS: Attach to host QEMU (macOS experimental)` in the browser's
-Run and Debug view and press <kbd>F5</kbd>. The GDB server listens only on the
-Mac loopback interface; Docker Desktop makes it reachable from the browser
-container as `host.docker.internal:1234`.
-
-In the standard browser mode on Linux, or on macOS with Rosetta disabled, run
-the `AOS: Debug QEMU (4 vCPUs)` task, select
-`AOS: Attach to QEMU kernel` in the Run and Debug view, and press <kbd>F5</kbd>.
-GDB attaches to QEMU's local stub and stops in `start_kernel`; press
-<kbd>F5</kbd> again to continue booting.
+For graphical kernel debugging, run the `AOS: Debug QEMU (4 vCPUs)` task,
+select `AOS: Attach to QEMU kernel` in the Run and Debug view, and press
+<kbd>F5</kbd>. GDB attaches to QEMU's local stub and stops in `start_kernel`;
+press <kbd>F5</kbd> again to continue booting.
 
 To debug a loadable module, prepare its runtime symbols in the Debug Console
 before `insmod`:
